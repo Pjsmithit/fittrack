@@ -14,6 +14,7 @@ export async function renderSetup() {
     restrictions: new Set(),
     splitStyle: "fullBody",
     programLengthWeeks: 4,
+    includeTreadmillWalking: false,
   };
 
   function render() {
@@ -130,6 +131,27 @@ export async function renderSetup() {
           ),
         ]),
 
+        section("Cardio Breaks", [
+          h("p", { style: "margin-top:-4px" }, "Adds a short walk before your first exercise and between every exercise after that."),
+          h(
+            "div",
+            { class: "chip-grid" },
+            [
+              h(
+                "button",
+                {
+                  class: `chip ${state.includeTreadmillWalking ? "active" : ""}`,
+                  onClick: () => {
+                    state.includeTreadmillWalking = !state.includeTreadmillWalking;
+                    render();
+                  },
+                },
+                state.includeTreadmillWalking ? "\u2713 Walking breaks on" : "Add walking breaks"
+              ),
+            ]
+          ),
+        ]),
+
         h("button", {
           class: "btn btn-primary",
           disabled: state.equipment.size === 0,
@@ -142,6 +164,7 @@ export async function renderSetup() {
               restrictions: Array.from(state.restrictions),
               splitStyle: state.splitStyle,
               programLengthWeeks: state.programLengthWeeks,
+              includeTreadmillWalking: state.includeTreadmillWalking,
             });
             showToast("Program generated");
             navigate("/program");

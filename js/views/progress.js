@@ -20,6 +20,7 @@ export async function renderProgress() {
     db.getAll("programs"),
     db.getAll("bodyweight"),
   ]);
+  const exerciseCount = await db.count("exercises");
   logs.sort((a, b) => new Date(b.date) - new Date(a.date));
   bodyweight.sort((a, b) => new Date(a.date) - new Date(b.date));
   const activeProgram = programs.find((p) => p.isActive);
@@ -47,6 +48,19 @@ export async function renderProgress() {
           : h("span"),
       ]),
       h("div", { style: "padding:16px" }, [
+        h("div", { class: "card" }, [
+          h("div", { class: "row-split", style: "padding:0" }, [
+            h("div", { class: "row-link", style: "cursor:default;padding:0" }, [
+              h("h2", {}, "Data & Storage"),
+              h("p", { style: "margin:0" }, "Where your data lives, and how much of it there is."),
+            ]),
+            h("button", {
+              class: "log-pill",
+              onClick: () => showDataInfoSheet({ logs: logs.length, programs: programs.length, bodyweight: bodyweight.length, exercises: exerciseCount }),
+            }, "View"),
+          ]),
+        ]),
+
         h("div", { class: "card" }, [
           h("div", { class: "row-split", style: "padding:0" }, [
             h("div", { class: "row-link", style: "cursor:default;padding:0" }, [
@@ -105,12 +119,21 @@ export async function renderProgress() {
                 "ul",
                 { class: "card-list" },
                 logs.map((log) =>
-                  h("li", { class: "row", style: "cursor:default" }, [
-                    h("span", {}, [
-                      h("div", { class: "row-title" }, log.dayTitle),
-                      h("div", { class: "row-sub" }, new Date(log.date).toLocaleString()),
-                    ]),
-                    h("span", { class: `badge ${log.status === "completed" ? "success" : log.status === "skipped" ? "warn" : ""}` }, log.status),
+                  h("li", {}, [
+                    h(
+                      "button",
+                      { class: "row", onClick: () => navigate(`/edit-log/${log.id}`) },
+                      [
+                        h("span", {}, [
+                          h("div", { class: "row-title" }, log.dayTitle),
+                          h("div", { class: "row-sub" }, new Date(log.date).toLocaleString()),
+                        ]),
+                        h("span", { style: "display:flex;align-items:center;gap:8px" }, [
+                          h("span", { class: `badge ${log.status === "completed" ? "success" : log.status === "skipped" ? "warn" : ""}` }, log.status),
+                          h("span", { class: "row-chevron" }, "\u203a"),
+                        ]),
+                      ]
+                    ),
                   ])
                 )
               ),
@@ -212,6 +235,47 @@ function chartOptions() {
       y: { ticks: { color: "#9A9FA8" }, grid: { color: "#2C3038" } },
     },
   };
+}
+
+function showDataInfoSheet(counts) {
+  const origin = window.location.origin + window.location.pathname.replace(/index\.html$/, "");
+  const overlay = h("div", {
+    style: "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:flex;align-items:flex-end",
+    onClick: (e) => { if (e.target === overlay) document.body.removeChild(overlay); },
+  });
+  const sheet = h("div", {
+    style: "background:var(--bg-elevated);width:100%;max-height:85vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))",
+  }, [
+    h("h2", { style: "margin-bottom:12px" }, "Data & Storage"),
+
+    h("div", { class: "card" }, [
+      h("div", { class: "eyebrow", style: "margin-bottom:8px" }, "Stored on this device only"),
+      h("p", {}, "Everything is saved locally in this browser's on-device database (IndexedDB), tied to this installed app. Nothing is uploaded anywhere — not to a server, not to Anthropic, not anywhere else. No account, no sign-in, no internet connection needed to read or write it."),
+    ]),
+
+    h("div", { class: "card" }, [
+      h("div", { class: "eyebrow", style: "margin-bottom:8px" }, "This installation"),
+      h("p", { style: "font-family:var(--font-mono);font-size:12px;word-break:break-all" }, origin),
+      h("p", {}, "Data is scoped to this exact web address. If you ever install FitTrack again from a different URL, that copy starts with its own separate, empty storage."),
+    ]),
+
+    h("div", { class: "card" }, [
+      h("div", { class: "eyebrow", style: "margin-bottom:8px" }, "Currently stored"),
+      h("ul", { class: "card-list" }, [
+        h("li", { class: "row", style: "cursor:default" }, [h("span", {}, "Logged workouts"), h("span", {}, String(counts.logs))]),
+        h("li", { class: "row", style: "cursor:default" }, [h("span", {}, "Bodyweight entries"), h("span", {}, String(counts.bodyweight))]),
+        h("li", { class: "row", style: "cursor:default" }, [h("span", {}, "Programs generated"), h("span", {}, String(counts.programs))]),
+        h("li", { class: "row", style: "cursor:default" }, [h("span", {}, "Exercises in library"), h("span", {}, String(counts.exercises))]),
+      ]),
+    ]),
+
+    h("div", { class: "card" }, [
+      h("div", { class: "eyebrow", style: "margin-bottom:8px" }, "Worth knowing"),
+      h("p", {}, "iOS can, in rare low-storage situations, clear an installed web app's data if it goes unopened for roughly a week or more. Opening FitTrack periodically avoids this. There's currently no export/backup feature — if that would be useful, it's a straightforward thing to add."),
+    ]),
+  ]);
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
 }
 
 function showAddBodyweightSheet(onSaved) {

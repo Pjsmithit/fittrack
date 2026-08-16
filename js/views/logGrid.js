@@ -75,8 +75,11 @@ export async function renderLogGrid() {
       return h("span", { style: "color:var(--text-faint)" }, "\u2013");
     }
     return h(
-      "div",
-      { style: "display:flex;flex-direction:column;gap:2px;font-family:var(--font-mono);font-size:11px;line-height:1.4" },
+      "button",
+      {
+        style: "display:flex;flex-direction:column;gap:2px;font-family:var(--font-mono);font-size:11px;line-height:1.4;background:none;border:none;color:inherit;padding:0;cursor:pointer;width:100%",
+        onClick: () => navigate(`/edit-log/${log.id}`),
+      },
       exLog.sets
         .slice()
         .sort((a, b) => a.setNumber - b.setNumber)
