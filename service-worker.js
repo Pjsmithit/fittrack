@@ -4,7 +4,7 @@
 // service worker can route around, and the app surfaces that state
 // explicitly (see js/views/exerciseDetail.js).
 
-const CACHE_NAME = "fittrack-shell-v1";
+const CACHE_NAME = "fittrack-shell-v2";
 
 const SHELL_ASSETS = [
   "./",
@@ -15,6 +15,7 @@ const SHELL_ASSETS = [
   "./js/db.js",
   "./js/dom.js",
   "./js/router.js",
+  "./js/dayPicker.js",
   "./js/exerciseLibrary.js",
   "./js/programGenerator.js",
   "./js/views/setup.js",

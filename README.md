@@ -99,6 +99,41 @@ recurring hassle.
   trade-off versus native local storage — worth knowing, not a
   reason to avoid the approach.
 
+## Update log
+
+**Update 2** — fixes two issues reported after first install:
+
+1. **Full exercise library.** Replaced the 2 placeholder entries with
+   36 real exercises with real, currently-live YouTube videos, covering
+   push, pull, legs, core, and treadmill work across dumbbell,
+   bodyweight, bench, and treadmill equipment. Bench-requiring moves
+   (bench press, incline/decline fly, seated curls, etc.) are tagged
+   `equipment: "bench"` rather than `"dumbbell"` — toggle "Bench" on
+   in the setup wizard if you have one, otherwise the generator sticks
+   to true dumbbell-only and bodyweight moves.
+2. **Logging discoverability.** Logging already existed but was only
+   reachable by drilling into a specific day first. Now there's a
+   direct **"Log" pill on every day row** in the Program tab (one tap,
+   no drill-down needed), plus a **"+ Log" button in the Progress
+   tab's header** that opens a day picker from anywhere.
+
+### How to apply this update
+
+1. Re-upload every file in this folder to your GitHub repo (or drag
+   the whole folder into Netlify again) — same process as the initial
+   setup, just overwriting what's there.
+2. **Important**: because the exercise library changed, any program
+   you already generated was built from the 2 old placeholder
+   exercises repeated throughout — regenerate it (Program tab → **+
+   New**) so it draws from the real 36-exercise library instead. Past
+   logged workouts and bodyweight entries are untouched either way.
+3. Fully close the installed app (swipe it away from the app switcher)
+   and reopen it once. The service worker's cache version was bumped
+   specifically so the update is picked up on next launch rather than
+   silently serving the old cached files — a normal in-app refresh
+   isn't always enough for a service-worker-cached PWA, but a full
+   close-and-reopen is reliable.
+
 ## Known limitations / not yet built
 
 - Exercise library content itself (currently 2 placeholder entries,
