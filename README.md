@@ -101,6 +101,16 @@ recurring hassle.
 
 ## Update log
 
+**Update 3** — new Log Grid view: a spreadsheet-style table with
+exercises down the left (in the order they appear in your active
+program) and every logged session across the top, each cell showing
+weight×reps per set. A Week / Month / All toggle controls how many
+sessions show as columns, so you can scan a single week's work or
+scroll back across a whole month at a glance. Reach it via the new
+**"Log Grid"** card at the top of the Progress tab. The table scrolls
+horizontally for older sessions while the exercise names and header
+row stay pinned in place.
+
 **Update 2** — fixes two issues reported after first install:
 
 1. **Full exercise library.** Replaced the 2 placeholder entries with
@@ -122,17 +132,12 @@ recurring hassle.
 1. Re-upload every file in this folder to your GitHub repo (or drag
    the whole folder into Netlify again) — same process as the initial
    setup, just overwriting what's there.
-2. **Important**: because the exercise library changed, any program
-   you already generated was built from the 2 old placeholder
-   exercises repeated throughout — regenerate it (Program tab → **+
-   New**) so it draws from the real 36-exercise library instead. Past
-   logged workouts and bodyweight entries are untouched either way.
-3. Fully close the installed app (swipe it away from the app switcher)
-   and reopen it once. The service worker's cache version was bumped
-   specifically so the update is picked up on next launch rather than
-   silently serving the old cached files — a normal in-app refresh
-   isn't always enough for a service-worker-cached PWA, but a full
-   close-and-reopen is reliable.
+2. Fully close the installed app (swipe it away from the app switcher)
+   and reopen it once. The service worker's cache version is bumped
+   with each update specifically so it's picked up on next launch
+   rather than silently serving old cached files — a normal in-app
+   refresh isn't always enough for a service-worker-cached PWA, but a
+   full close-and-reopen is reliable.
 
 ## Known limitations / not yet built
 
