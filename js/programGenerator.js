@@ -15,6 +15,12 @@ export function generateProgram(settings, library) {
   const eligible = eligibleExercises(settings, library);
   const dayTitles = buildDayTitles(settings.splitStyle, settings.daysPerWeek);
   const exercisesPerDay = exercisesPerSession(settings.sessionLengthMinutes);
+  // Looked up from the full library (not the equipment-filtered pool)
+  // so walking breaks can be requested independently of whatever main
+  // equipment was selected for the strength work.
+  const walkExercise = settings.includeTreadmillWalking
+    ? library.find((e) => e.id === "cardio-treadmill-walk")
+    : null;
 
   const program = {
     id: uuid(),
@@ -40,14 +46,19 @@ export function generateProgram(settings, library) {
       const dayPool = poolForDay(title, eligible);
       const picks = pick(exercisesPerDay, dayPool, rotationSeed);
 
-      const exercises = picks.map((exercise, orderIndex) => ({
-        orderIndex,
+      let exercises = picks.map((exercise) => ({
         exerciseID: exercise.id,
         exerciseName: exercise.name,
         sets: exercise.defaultSets,
         repRange: goal.repRangeBias,
         restSeconds: goal.restSecondsBias,
       }));
+
+      if (walkExercise) {
+        exercises = interleaveWalkBreaks(exercises, walkExercise);
+      }
+
+      exercises = exercises.map((ex, orderIndex) => ({ ...ex, orderIndex }));
 
       week.days.push({ dayNumber: index + 1, title, exercises });
     });
@@ -133,6 +144,29 @@ function poolForDay(title, exercises) {
 
 function exercisesPerSession(sessionLengthMinutes) {
   return Math.max(3, Math.min(8, Math.floor(sessionLengthMinutes / 7)));
+}
+
+/**
+ * Inserts a short walking entry before the first exercise and between
+ * every subsequent pair, e.g. Walk, Ex1, Walk, Ex2, Walk, Ex3.
+ */
+function interleaveWalkBreaks(exercises, walkExercise) {
+  const walkEntry = () => ({
+    exerciseID: walkExercise.id,
+    exerciseName: walkExercise.name,
+    sets: 1,
+    repRange: walkExercise.defaultRepRange,
+    restSeconds: 0,
+  });
+
+  const result = [walkEntry()];
+  exercises.forEach((ex, i) => {
+    result.push(ex);
+    if (i < exercises.length - 1) {
+      result.push(walkEntry());
+    }
+  });
+  return result;
 }
 
 /**

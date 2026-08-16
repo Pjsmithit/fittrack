@@ -36,18 +36,28 @@ function currentPath() {
 
 async function resolve() {
   const path = currentPath();
-  for (const r of routes) {
-    const match = path.match(r.regex);
-    if (match) {
-      const params = {};
-      r.paramNames.forEach((name, i) => {
-        params[name] = decodeURIComponent(match[i + 1]);
-      });
-      await r.handler(params);
-      return;
+  try {
+    for (const r of routes) {
+      const match = path.match(r.regex);
+      if (match) {
+        const params = {};
+        r.paramNames.forEach((name, i) => {
+          params[name] = decodeURIComponent(match[i + 1]);
+        });
+        await r.handler(params);
+        return;
+      }
     }
+    await notFoundHandler();
+  } catch (err) {
+    // A render failure would otherwise leave the screen looking
+    // "stuck" with no visible cause, especially on iOS where there's
+    // no console to check without a Mac. Surface it directly instead.
+    if (window.__showBootError) {
+      window.__showBootError(`Failed to render "${path}": ${err && err.message ? err.message : err}`);
+    }
+    throw err;
   }
-  await notFoundHandler();
 }
 
 export function startRouter() {

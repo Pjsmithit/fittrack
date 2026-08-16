@@ -7,6 +7,7 @@ import { renderExercise } from "./views/exerciseDetail.js";
 import { renderLog } from "./views/logging.js";
 import { renderProgress } from "./views/progress.js";
 import { renderLogGrid } from "./views/logGrid.js";
+import { renderEditLog } from "./views/editLog.js";
 
 route("/setup", renderSetup);
 route("/program", renderProgram);
@@ -15,6 +16,7 @@ route("/exercise/:programId/:weekNumber/:dayNumber/:exerciseIndex", renderExerci
 route("/log/:programId/:weekNumber/:dayNumber", renderLog);
 route("/progress", renderProgress);
 route("/grid", renderLogGrid);
+route("/edit-log/:logId", renderEditLog);
 notFound(renderProgram);
 
 document.querySelectorAll(".tabbar button").forEach((btn) => {
@@ -22,8 +24,15 @@ document.querySelectorAll(".tabbar button").forEach((btn) => {
 });
 
 async function boot() {
-  await seedExerciseLibraryIfNeeded();
-  startRouter();
+  try {
+    await seedExerciseLibraryIfNeeded();
+    startRouter();
+  } catch (err) {
+    if (window.__showBootError) {
+      window.__showBootError(`Startup failed: ${err && err.message ? err.message : err}`);
+    }
+    throw err;
+  }
 }
 
 boot();
