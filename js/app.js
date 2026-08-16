@@ -6,6 +6,7 @@ import { renderDay } from "./views/day.js";
 import { renderExercise } from "./views/exerciseDetail.js";
 import { renderLog } from "./views/logging.js";
 import { renderProgress } from "./views/progress.js";
+import { renderLogGrid } from "./views/logGrid.js";
 
 route("/setup", renderSetup);
 route("/program", renderProgram);
@@ -13,6 +14,7 @@ route("/day/:programId/:weekNumber/:dayNumber", renderDay);
 route("/exercise/:programId/:weekNumber/:dayNumber/:exerciseIndex", renderExercise);
 route("/log/:programId/:weekNumber/:dayNumber", renderLog);
 route("/progress", renderProgress);
+route("/grid", renderLogGrid);
 notFound(renderProgram);
 
 document.querySelectorAll(".tabbar button").forEach((btn) => {
