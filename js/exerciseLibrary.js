@@ -40,10 +40,26 @@ export function splitById(id) {
  * whenever new entries have been added to the bundled file since the
  * last seed. Existing IDs are never duplicated or overwritten, so it's
  * safe to add to exercise-library.json incrementally later.
+ *
+ * One-time migration: the very first release shipped two placeholder
+ * entries with youtubeVideoID "REPLACE_ME" so the app had something to
+ * render before real content existed. Those are removed here so they
+ * don't linger in anyone's existing IndexedDB store now that the real
+ * library has landed. Any program generated against the placeholder
+ * library will still reference those old exercise IDs — generating a
+ * fresh program picks from the real library instead.
  */
 export async function seedExerciseLibraryIfNeeded() {
   const existing = await db.getAll("exercises");
-  const existingIDs = new Set(existing.map((e) => e.id));
+
+  const placeholders = existing.filter((e) => e.youtubeVideoID === "REPLACE_ME");
+  for (const placeholder of placeholders) {
+    await db.delete("exercises", placeholder.id);
+  }
+
+  const existingIDs = new Set(
+    existing.filter((e) => e.youtubeVideoID !== "REPLACE_ME").map((e) => e.id)
+  );
 
   const res = await fetch("data/exercise-library.json");
   const seeds = await res.json();
