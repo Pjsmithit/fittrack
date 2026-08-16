@@ -1,0 +1,30 @@
+[
+  {
+    "id": "sample-goblet-squat",
+    "name": "Dumbbell Goblet Squat",
+    "description": "Hold one dumbbell vertically against your chest and squat, keeping your torso upright.",
+    "equipment": "dumbbell",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes", "hamstrings"],
+    "pattern": "squat",
+    "restrictionsToAvoid": [],
+    "youtubeVideoID": "REPLACE_ME",
+    "defaultSets": 3,
+    "defaultRepRange": "8-12",
+    "defaultRestSeconds": 60
+  },
+  {
+    "id": "sample-bodyweight-squat",
+    "name": "Bodyweight Squat",
+    "description": "Feet shoulder-width apart, lower hips back and down, drive back up through the heels.",
+    "equipment": "bodyweight",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes"],
+    "pattern": "squat",
+    "restrictionsToAvoid": [],
+    "youtubeVideoID": "REPLACE_ME",
+    "defaultSets": 3,
+    "defaultRepRange": "12-15",
+    "defaultRestSeconds": 45
+  }
+]
