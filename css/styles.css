@@ -134,6 +134,42 @@ p { margin: 0 0 8px; line-height: 1.45; color: var(--text-dim); }
 .row-sub { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
 .row-chevron { color: var(--text-faint); font-size: 18px; flex-shrink: 0; }
 
+/* Split day row: a plain tappable title area plus a distinct "Log"
+   action, so logging a workout is reachable in one tap from the
+   Program tab without drilling into the day first. */
+.row-split {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  min-height: var(--tap-min);
+}
+.row-link {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  font-family: var(--font-body);
+  padding: 4px 0;
+  cursor: pointer;
+}
+.log-pill {
+  flex-shrink: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  padding: 8px 14px;
+  min-height: 36px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
 /* Buttons */
 .btn {
   font-family: var(--font-display);
