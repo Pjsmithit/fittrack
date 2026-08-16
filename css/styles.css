@@ -414,6 +414,55 @@ p { margin: 0 0 8px; line-height: 1.45; color: var(--text-dim); }
 
 canvas.chart { width: 100% !important; max-height: 200px; }
 
+/* Log grid — spreadsheet-style table: exercises down the left (sticky
+   column), each logged session across the top, weight×reps per set
+   in each cell. Horizontally scrollable for many sessions; the first
+   column and header row stay pinned so long lists stay readable. */
+.grid-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+}
+table.log-grid {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+}
+table.log-grid th, table.log-grid td {
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  min-width: 68px;
+  white-space: nowrap;
+}
+table.log-grid th {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--bg-elevated);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+table.log-grid .sticky-col {
+  position: sticky;
+  left: 0;
+  background: var(--bg-elevated);
+  text-align: left;
+  min-width: 140px;
+  max-width: 140px;
+  white-space: normal;
+  font-weight: 600;
+  z-index: 2;
+}
+table.log-grid thead .sticky-col { z-index: 3; }
+table.log-grid tbody tr:last-child td { border-bottom: none; }
+table.log-grid td:last-child, table.log-grid th:last-child { border-right: none; }
+
 .toast {
   position: fixed;
   bottom: calc(76px + env(safe-area-inset-bottom));
