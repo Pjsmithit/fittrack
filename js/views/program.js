@@ -38,20 +38,27 @@ export async function renderProgram() {
             .sort((a, b) => a.dayNumber - b.dayNumber)
             .map((day) =>
               h("li", {}, [
-                h(
-                  "button",
-                  {
-                    class: "row",
-                    onClick: () => navigate(`/day/${active.id}/${week.weekNumber}/${day.dayNumber}`),
-                  },
-                  [
-                    h("span", {}, [
+                h("div", { class: "row-split" }, [
+                  h(
+                    "button",
+                    {
+                      class: "row-link",
+                      onClick: () => navigate(`/day/${active.id}/${week.weekNumber}/${day.dayNumber}`),
+                    },
+                    [
                       h("div", { class: "row-title" }, day.title),
-                      h("div", { class: "row-sub" }, `${day.exercises.length} exercises`),
-                    ]),
-                    h("span", { class: "row-chevron" }, "\u203a"),
-                  ]
-                ),
+                      h("div", { class: "row-sub" }, `${day.exercises.length} exercises \u203a`),
+                    ]
+                  ),
+                  h(
+                    "button",
+                    {
+                      class: "log-pill",
+                      onClick: () => navigate(`/log/${active.id}/${week.weekNumber}/${day.dayNumber}`),
+                    },
+                    "Log"
+                  ),
+                ]),
               ])
             )
         ),

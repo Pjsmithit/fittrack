@@ -1,5 +1,6 @@
 import { h, mount, showTabbar, setTabbarActive, showToast } from "../dom.js";
 import { db, uuid } from "../db.js";
+import { showDayPickerSheet } from "../dayPicker.js";
 
 let charts = {};
 
@@ -37,7 +38,13 @@ export async function renderProgress() {
 
   function render() {
     const screen = h("div", { class: "screen", style: "padding-top:0" }, [
-      h("div", { class: "topbar" }, [h("span"), h("h1", {}, "Progress"), h("span")]),
+      h("div", { class: "topbar" }, [
+        h("span"),
+        h("h1", {}, "Progress"),
+        activeProgram
+          ? h("button", { class: "topbar-action", onClick: () => showDayPickerSheet(activeProgram) }, "+ Log")
+          : h("span"),
+      ]),
       h("div", { style: "padding:16px" }, [
         activeProgram
           ? h("div", { class: "card" }, [
