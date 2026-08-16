@@ -101,6 +101,58 @@ recurring hassle.
 
 ## Update log
 
+**Update 5** — three additions:
+
+1. **More treadmill exercises + walking breaks.** The treadmill library
+   grew from 3 to 5 entries: Treadmill Walking, Incline Treadmill
+   Walking, Beginner Incline Walking Intervals, Treadmill Jogging, and
+   Treadmill Running. Separately, the setup wizard now has a **"Cardio
+   Breaks"** toggle — turn it on and every generated day gets a short
+   walking entry inserted before the first exercise and between every
+   exercise after that (Walk → Ex1 → Walk → Ex2 → Walk → Ex3...). This
+   works independently of your main equipment selection, so you can
+   train dumbbell/bodyweight and still get walking breaks woven in.
+   Regenerate your program (Program tab → **+ New**) to pick this up.
+2. **Edit and delete log entries.** Tap any entry in the Progress
+   tab's History list, or any filled-in cell in the Log Grid, to open
+   it for editing — change reps, weight, add or remove sets, adjust
+   RPE/notes/status, or delete the whole entry. Changes save back in
+   place; nothing about it being "already logged" is locked.
+3. **Data & Storage confirmation.** New card at the top of the
+   Progress tab (tap **View**) that shows exactly where your data
+   lives — this device only, in this browser's local storage, tied to
+   this exact installed URL, nothing uploaded anywhere — plus live
+   counts of what's currently stored (workouts, bodyweight entries,
+   programs, library exercises).
+
+**Update 4** — diagnostic fix for "buttons stop working." If a file
+fails to load after an update (most often because an upload to
+GitHub missed a file, or GitHub Pages hadn't finished propagating
+yet), the app used to just go silently blank with no way to tell
+why — especially bad on iPhone, since Safari has no JS console
+without a Mac plugged in. Now a **red banner appears at the top of
+the screen** naming the actual error the moment something fails to
+load or render, instead of the screen just looking unresponsive.
+
+If you hit this again: screenshot the red banner and send it over —
+that tells me exactly what broke instead of guessing. Two likely
+causes if it happens again:
+- **An upload was incomplete.** Each update adds new files (this one
+  added `js/views/logGrid.js`); if GitHub's mobile upload flow drops
+  one, the whole app fails to start, since a missing file breaks the
+  entire module chain. Safest fix: delete everything in your GitHub
+  repo and re-upload this zip's contents fresh, rather than adding
+  files incrementally on top of what's there.
+- **GitHub Pages hadn't finished redeploying yet.** It usually takes
+  under 2 minutes after a commit, occasionally longer — check the
+  repo's **Actions** tab for a green checkmark on the latest "pages
+  build and deployment" run before testing.
+
+You can also directly check whether a specific file made it up by
+opening its URL in Safari, e.g.
+`https://<you>.github.io/fittrack/js/views/logGrid.js` — it should
+show JavaScript source text, not a 404 page.
+
 **Update 3** — new Log Grid view: a spreadsheet-style table with
 exercises down the left (in the order they appear in your active
 program) and every logged session across the top, each cell showing
