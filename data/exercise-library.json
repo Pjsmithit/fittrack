@@ -462,23 +462,23 @@
     "defaultRestSeconds": 30
   },
   {
-    "id": "cardio-treadmill-run-form",
-    "name": "Treadmill Running Form",
-    "description": "A rundown of posture, foot strike, and cadence basics for running on a treadmill.",
+    "id": "cardio-treadmill-walk",
+    "name": "Treadmill Walking",
+    "description": "Flat, comfortable-pace walking — the basics of treadmill setup, posture, and safe use.",
     "equipment": "treadmill",
     "primaryMuscle": "cardio",
-    "secondaryMuscles": ["quads", "hamstrings", "calves"],
+    "secondaryMuscles": ["calves"],
     "pattern": "carry",
-    "restrictionsToAvoid": ["kneeFriendly"],
-    "youtubeVideoID": "aKfJJ1TuyE4",
+    "restrictionsToAvoid": [],
+    "youtubeVideoID": "76XnbF5DBFY",
     "defaultSets": 1,
-    "defaultRepRange": "15-20 min",
+    "defaultRepRange": "3 min",
     "defaultRestSeconds": 0
   },
   {
-    "id": "cardio-incline-walk-12330",
-    "name": "Incline Treadmill Walk (12-3-30)",
-    "description": "Steady incline walking at a fixed speed and grade for a sustained cardio session.",
+    "id": "cardio-treadmill-incline-walk",
+    "name": "Incline Treadmill Walking",
+    "description": "Walking at a steady elevated grade to raise intensity without the impact of running.",
     "equipment": "treadmill",
     "primaryMuscle": "cardio",
     "secondaryMuscles": ["glutes", "calves"],
@@ -486,7 +486,7 @@
     "restrictionsToAvoid": [],
     "youtubeVideoID": "NAsObfFJXvE",
     "defaultSets": 1,
-    "defaultRepRange": "30 min",
+    "defaultRepRange": "20-30 min",
     "defaultRestSeconds": 0
   },
   {
@@ -501,6 +501,34 @@
     "youtubeVideoID": "vdsaHSr1H_E",
     "defaultSets": 1,
     "defaultRepRange": "20 min",
+    "defaultRestSeconds": 0
+  },
+  {
+    "id": "cardio-treadmill-jog",
+    "name": "Treadmill Jogging",
+    "description": "A step up from walking pace — proper jogging form and cadence on the treadmill.",
+    "equipment": "treadmill",
+    "primaryMuscle": "cardio",
+    "secondaryMuscles": ["quads", "hamstrings", "calves"],
+    "pattern": "carry",
+    "restrictionsToAvoid": ["kneeFriendly"],
+    "youtubeVideoID": "ZS3afaigfd4",
+    "defaultSets": 1,
+    "defaultRepRange": "10-15 min",
+    "defaultRestSeconds": 0
+  },
+  {
+    "id": "cardio-treadmill-run",
+    "name": "Treadmill Running",
+    "description": "A rundown of posture, foot strike, and cadence basics for running on a treadmill.",
+    "equipment": "treadmill",
+    "primaryMuscle": "cardio",
+    "secondaryMuscles": ["quads", "hamstrings", "calves"],
+    "pattern": "carry",
+    "restrictionsToAvoid": ["kneeFriendly"],
+    "youtubeVideoID": "aKfJJ1TuyE4",
+    "defaultSets": 1,
+    "defaultRepRange": "15-20 min",
     "defaultRestSeconds": 0
   }
 ]
