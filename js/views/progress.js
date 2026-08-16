@@ -1,6 +1,7 @@
 import { h, mount, showTabbar, setTabbarActive, showToast } from "../dom.js";
 import { db, uuid } from "../db.js";
 import { showDayPickerSheet } from "../dayPicker.js";
+import { navigate } from "../router.js";
 
 let charts = {};
 
@@ -46,6 +47,16 @@ export async function renderProgress() {
           : h("span"),
       ]),
       h("div", { style: "padding:16px" }, [
+        h("div", { class: "card" }, [
+          h("div", { class: "row-split", style: "padding:0" }, [
+            h("div", { class: "row-link", style: "cursor:default;padding:0" }, [
+              h("h2", {}, "Log Grid"),
+              h("p", { style: "margin:0" }, "Exercises \u00d7 sessions, at a glance."),
+            ]),
+            h("button", { class: "log-pill", onClick: () => navigate("/grid") }, "View"),
+          ]),
+        ]),
+
         activeProgram
           ? h("div", { class: "card" }, [
               h("h2", {}, "Adherence"),
