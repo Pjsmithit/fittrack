@@ -101,6 +101,46 @@ recurring hassle.
 
 ## Update log
 
+**Update 10** — the Program/Progress tab bar at the bottom is now
+visible on every screen, not just the two top-level tabs. Previously
+it disappeared the moment you drilled into a day, an exercise, logging,
+or any edit screen; now it's always there so you can jump straight to
+Program or Progress from anywhere. Worth knowing: on screens with
+unsaved changes (building or editing a program, logging a workout),
+tapping away via the tab bar discards them without asking — same as
+tapping that screen's own Cancel button. Say if you'd rather the tab
+bar step aside on those specific screens to prevent that.
+
+**Fix** — added a `.nojekyll` file at the repo root. GitHub Pages
+tries to process every site through Jekyll by default, which can fail
+or misbehave for a plain JS app like this one. This file tells it to
+skip that and serve the files as-is — standard practice for any
+non-Jekyll static site. Because it's a hidden dotfile, it may not
+show up if you upload via Safari's file picker — the reliable way to
+add it is **GitHub's web UI → Add file → Create new file**, name it
+`.nojekyll` exactly, leave it empty, commit. One-time fix, no need to
+repeat on future updates.
+
+**Update 9** — manual backup/restore. In **Progress → Data & Storage**,
+there's now a **Backup** card:
+
+- **Export Backup** builds a single JSON file with everything —
+  programs, logged workouts, bodyweight entries, exercise library —
+  and opens the native share sheet so you can save it straight to
+  iCloud Drive, email it to yourself, AirDrop it, or whatever else you
+  normally use. (If the share sheet isn't available for some reason,
+  it falls back to a plain file download instead.)
+- **Import Backup** picks a previously exported file and restores it.
+  This is a full replace, not a merge — it shows you what's in the
+  file (program/workout/bodyweight counts, export date) and asks for
+  confirmation before doing anything, since it's not reversible.
+
+Worth doing before an iOS update, before switching phones, or any
+time you haven't opened the app in a while — see the note about iOS
+storage eviction below. This was tested end-to-end (export → JSON →
+validate → restore) before shipping to make sure a restored backup
+comes back byte-for-byte identical to what was exported.
+
 **Update 8** — added a version number and last-updated date, visible
 in two places: a small footer at the bottom of the Program tab, and
 a card at the top of the **Data & Storage** sheet (Progress tab).
