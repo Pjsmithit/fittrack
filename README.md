@@ -101,6 +101,36 @@ recurring hassle.
 
 ## Update log
 
+**Update 6** — major change: multiple programs, custom-built from
+scratch.
+
+- **Program tab is now a list of every program you've made** — not
+  just one "active" one. Tap **+ New** and choose **Auto-Generate**
+  (the existing wizard) or **Build Custom**.
+- **Build Custom** lets you build a program entirely yourself: name
+  it, set how many weeks it runs, add training days, and for each day
+  pick exercises straight from the library (grouped by muscle) with
+  your own sets and rep range. That day structure repeats every week.
+- **Tap any program** in the list to open it — from there you can
+  follow it day-by-day and log workouts exactly as before, or use the
+  **⋯** menu in the top right to **Edit** or **Delete** it. Editing
+  opens the same day-builder used for custom programs — add, remove,
+  or reorder exercises and days, rename it, change the week count.
+  One thing worth knowing: saving an edit rebuilds every week from
+  that one template, so if an auto-generated program had different
+  exercises in a later rotation week, editing replaces that variation
+  with a consistent structure across all weeks.
+- **Deleting a program never deletes your logged workouts** — history,
+  the Log Grid, and your bodyweight entries are all independent of
+  which programs still exist.
+- Progress tab's Adherence chart and the Log Grid now have their own
+  **program picker**, since "the" active program no longer exists as
+  a concept — pick whichever program you want to look at.
+
+No action needed on your existing program — it still works exactly as
+before, just reachable by tapping into it from the new list instead of
+it being the only thing shown.
+
 **Update 5** — three additions:
 
 1. **More treadmill exercises + walking breaks.** The treadmill library
