@@ -53,6 +53,7 @@ export function generateProgram(settings, library) {
         sets: exercise.defaultSets,
         repRange: goal.repRangeBias,
         restSeconds: goal.restSecondsBias,
+        linkedToNext: false,
       }));
 
       if (walkExercise) {
@@ -150,6 +151,7 @@ function interleaveWalkBreaks(exercises, walkExercise) {
     sets: 1,
     repRange: walkExercise.defaultRepRange,
     restSeconds: 0,
+    linkedToNext: false,
   });
 
   const result = [walkEntry()];
