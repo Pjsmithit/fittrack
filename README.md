@@ -101,6 +101,18 @@ recurring hassle.
 
 ## Update log
 
+**Update 11** — fix for "Import does nothing." The restore
+confirmation was using the browser's native `confirm()` dialog,
+triggered from several async steps after your actual tap (file picker
+→ file read → parse) — iOS Safari can be unreliable about native
+dialogs that aren't tied directly to a user gesture, which likely
+caused it to silently fail to appear. Replaced with the app's own
+confirmation sheet instead, which doesn't have that dependency. Also
+added a "Reading backup file…" toast the moment a file is picked, and
+if a restore genuinely fails partway, the error now names exactly
+which part of the data failed and why (via the red error banner)
+instead of a generic, misleading "couldn't read that file" message.
+
 **Update 10** — the Program/Progress tab bar at the bottom is now
 visible on every screen, not just the two top-level tabs. Previously
 it disappeared the moment you drilled into a day, an exercise, logging,

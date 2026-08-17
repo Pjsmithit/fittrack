@@ -78,10 +78,15 @@ export function isValidBackupPayload(payload) {
 /** Replaces ALL local data with what's in the backup payload. */
 export async function restoreBackup(payload) {
   for (const store of STORES) {
-    await db.clear(store);
     const records = payload.data[store];
-    if (records.length > 0) {
-      await db.putAll(store, records);
+    try {
+      await db.clear(store);
+      if (records.length > 0) {
+        await db.putAll(store, records);
+      }
+    } catch (err) {
+      const message = err && err.message ? err.message : String(err);
+      throw new Error(`Failed writing "${store}" (${records.length} records): ${message}`);
     }
   }
 }

@@ -325,36 +325,71 @@ function showDataInfoSheet(counts) {
     onChange: async (e) => {
       const file = e.target.files[0];
       if (!file) return;
+      showToast("Reading backup file\u2026");
+      let payload;
       try {
-        const payload = await readFileAsJSON(file);
-        if (!isValidBackupPayload(payload)) {
-          showToast("That doesn't look like a FitTrack backup file");
-          return;
-        }
-        const counts = {
-          logs: payload.data.logs.length,
-          programs: payload.data.programs.length,
-          bodyweight: payload.data.bodyweight.length,
-          exercises: payload.data.exercises.length,
-        };
-        const confirmed = window.confirm(
-          `Restore this backup from ${new Date(payload.exportedAt).toLocaleDateString()}?\n\n` +
-          `It has ${counts.programs} programs, ${counts.logs} logged workouts, ${counts.bodyweight} bodyweight entries.\n\n` +
-          `This replaces everything currently on this device. This can't be undone.`
-        );
-        if (!confirmed) return;
-        await restoreBackup(payload);
-        document.body.removeChild(overlay);
-        showToast("Backup restored");
-        renderProgress();
+        payload = await readFileAsJSON(file);
       } catch (err) {
-        showToast("Couldn't read that file");
+        showToast("Couldn't read that file \u2014 is it a valid backup?");
+        return;
       }
+      if (!isValidBackupPayload(payload)) {
+        showToast("That doesn't look like a FitTrack backup file");
+        return;
+      }
+      showRestoreConfirmSheet(payload, async () => {
+        try {
+          await restoreBackup(payload);
+          document.body.removeChild(overlay);
+          showToast("Backup restored");
+          renderProgress();
+        } catch (err) {
+          const message = err && err.message ? err.message : String(err);
+          showToast("Restore failed \u2014 see error banner");
+          if (window.__showBootError) {
+            window.__showBootError(`Restore failed: ${message}`);
+          }
+        }
+      });
     },
   });
   sheet.appendChild(importFileInput);
   overlay.appendChild(sheet);
   document.body.appendChild(overlay);
+}
+
+function showRestoreConfirmSheet(payload, onConfirm) {
+  const counts = {
+    logs: payload.data.logs.length,
+    programs: payload.data.programs.length,
+    bodyweight: payload.data.bodyweight.length,
+  };
+  const confirmOverlay = h("div", {
+    style: "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:60;display:flex;align-items:flex-end",
+    onClick: (e) => { if (e.target === confirmOverlay) document.body.removeChild(confirmOverlay); },
+  });
+  const confirmSheet = h("div", {
+    style: "background:var(--bg-elevated);width:100%;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))",
+  }, [
+    h("h2", { style: "margin-bottom:8px" }, "Restore This Backup?"),
+    h("p", {}, `From ${new Date(payload.exportedAt).toLocaleString()} \u2014 ${counts.programs} programs, ${counts.logs} logged workouts, ${counts.bodyweight} bodyweight entries.`),
+    h("p", { style: "color:var(--warn);font-weight:600" }, "This replaces everything currently on this device. This can't be undone."),
+    h("button", {
+      class: "btn btn-danger",
+      style: "background:var(--warn);color:#fff;margin-top:8px",
+      onClick: async () => {
+        document.body.removeChild(confirmOverlay);
+        await onConfirm();
+      },
+    }, "Restore & Replace Everything"),
+    h("button", {
+      class: "btn btn-secondary",
+      style: "margin-top:10px",
+      onClick: () => document.body.removeChild(confirmOverlay),
+    }, "Cancel"),
+  ]);
+  confirmOverlay.appendChild(confirmSheet);
+  document.body.appendChild(confirmOverlay);
 }
 
 function showAddBodyweightSheet(onSaved) {
