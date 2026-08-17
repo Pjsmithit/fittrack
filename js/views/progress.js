@@ -125,8 +125,15 @@ export async function renderProgress() {
           h("button", {
             class: "btn btn-secondary",
             style: "margin-top:12px",
-            onClick: () => showAddBodyweightSheet(async () => { await renderProgress(); }),
+            onClick: () => showBodyweightEntrySheet(null, async () => { await renderProgress(); }),
           }, "Add Bodyweight Entry"),
+          bodyweight.length > 0
+            ? h("button", {
+                class: "btn btn-secondary",
+                style: "margin-top:8px",
+                onClick: () => showManageBodyweightSheet(bodyweight, async () => { await renderProgress(); }),
+              }, "Edit / Delete Entries")
+            : null,
         ]),
 
         h("div", { class: "card" }, [
@@ -392,33 +399,140 @@ function showRestoreConfirmSheet(payload, onConfirm) {
   document.body.appendChild(confirmOverlay);
 }
 
-function showAddBodyweightSheet(onSaved) {
-  let weightKg = 70;
+function showBodyweightEntrySheet(existing, onChanged) {
+  let weightKg = existing ? existing.weightKg : 70;
+  let date = existing ? existing.date.slice(0, 10) : new Date().toISOString().slice(0, 10);
+
   const overlay = h("div", {
-    style: "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:flex;align-items:flex-end",
+    style: "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;display:flex;align-items:flex-end",
     onClick: (e) => { if (e.target === overlay) document.body.removeChild(overlay); },
   });
-  const input = h("input", {
+  const weightInput = h("input", {
     type: "number",
     inputmode: "decimal",
     step: "0.1",
     value: weightKg,
     onInput: (e) => { weightKg = Number(e.target.value) || 0; },
   });
+  const dateInput = h("input", {
+    type: "date",
+    value: date,
+    onInput: (e) => { date = e.target.value; },
+  });
+
   const sheet = h("div", {
     style: "background:var(--bg-elevated);width:100%;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))",
   }, [
-    h("h2", { style: "margin-bottom:12px" }, "Add Bodyweight"),
-    h("div", { class: "field" }, [h("label", {}, "Weight (kg)"), input]),
+    h("h2", { style: "margin-bottom:12px" }, existing ? "Edit Bodyweight" : "Add Bodyweight"),
+    h("div", { class: "field" }, [h("label", {}, "Date"), dateInput]),
+    h("div", { class: "field" }, [h("label", {}, "Weight (kg)"), weightInput]),
     h("button", {
       class: "btn btn-primary",
       onClick: async () => {
-        await db.put("bodyweight", { id: uuid(), date: new Date().toISOString(), weightKg });
+        const record = {
+          id: existing ? existing.id : uuid(),
+          date: new Date(date + "T12:00:00").toISOString(),
+          weightKg,
+        };
+        await db.put("bodyweight", record);
         document.body.removeChild(overlay);
-        showToast("Bodyweight saved");
-        onSaved();
+        showToast(existing ? "Bodyweight updated" : "Bodyweight saved");
+        onChanged();
       },
     }, "Save"),
+    existing
+      ? h("button", {
+          class: "btn btn-danger",
+          style: "background:none;border:1px solid var(--warn);margin-top:10px",
+          onClick: () => {
+            document.body.removeChild(overlay);
+            showConfirmSheet(
+              "Delete This Entry?",
+              `${new Date(existing.date).toLocaleDateString()} \u2014 ${existing.weightKg} kg. This can't be undone.`,
+              async () => {
+                await db.delete("bodyweight", existing.id);
+                showToast("Entry deleted");
+                onChanged();
+              }
+            );
+          },
+        }, "Delete Entry")
+      : null,
+  ]);
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+}
+
+function showManageBodyweightSheet(entries, onChanged) {
+  const overlay = h("div", {
+    style: "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:flex;align-items:flex-end",
+    onClick: (e) => { if (e.target === overlay) document.body.removeChild(overlay); },
+  });
+  const sorted = entries.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sheet = h("div", {
+    style: "background:var(--bg-elevated);width:100%;max-height:80vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))",
+  }, [
+    h("h2", { style: "margin-bottom:12px" }, "Bodyweight Entries"),
+    h(
+      "div",
+      { class: "card", style: "padding:0" },
+      h(
+        "ul",
+        { class: "card-list" },
+        sorted.map((entry) =>
+          h("li", {}, [
+            h(
+              "button",
+              {
+                class: "row",
+                onClick: () => {
+                  document.body.removeChild(overlay);
+                  showBodyweightEntrySheet(entry, onChanged);
+                },
+              },
+              [
+                h("span", {}, [
+                  h("div", { class: "row-title" }, `${entry.weightKg} kg`),
+                  h("div", { class: "row-sub" }, new Date(entry.date).toLocaleDateString()),
+                ]),
+                h("span", { class: "row-chevron" }, "\u203a"),
+              ]
+            ),
+          ])
+        )
+      )
+    ),
+  ]);
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+}
+
+/** Generic confirm sheet — used instead of window.confirm() since native
+ * dialogs can silently fail to appear when triggered from deep inside
+ * an async chain on iOS Safari. */
+function showConfirmSheet(title, message, onConfirm) {
+  const overlay = h("div", {
+    style: "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:60;display:flex;align-items:flex-end",
+    onClick: (e) => { if (e.target === overlay) document.body.removeChild(overlay); },
+  });
+  const sheet = h("div", {
+    style: "background:var(--bg-elevated);width:100%;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))",
+  }, [
+    h("h2", { style: "margin-bottom:8px" }, title),
+    h("p", { style: "color:var(--warn);font-weight:600" }, message),
+    h("button", {
+      class: "btn btn-danger",
+      style: "background:var(--warn);color:#fff;margin-top:8px",
+      onClick: async () => {
+        document.body.removeChild(overlay);
+        await onConfirm();
+      },
+    }, "Confirm"),
+    h("button", {
+      class: "btn btn-secondary",
+      style: "margin-top:10px",
+      onClick: () => document.body.removeChild(overlay),
+    }, "Cancel"),
   ]);
   overlay.appendChild(sheet);
   document.body.appendChild(overlay);
