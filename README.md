@@ -101,6 +101,13 @@ recurring hassle.
 
 ## Update log
 
+**Update 12** — bodyweight entries can now be edited and deleted. In
+**Progress → Bodyweight**, a new **"Edit / Delete Entries"** button
+(next to Add) opens a list of every entry — tap one to change its
+date or weight, or delete it outright, with the same confirmation-
+sheet pattern used for programs and logs (not a native dialog — see
+the note in Update 11 about why).
+
 **Update 11** — fix for "Import does nothing." The restore
 confirmation was using the browser's native `confirm()` dialog,
 triggered from several async steps after your actual tap (file picker
