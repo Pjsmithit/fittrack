@@ -2,6 +2,7 @@ import { h, mount, showTabbar, setTabbarActive, showToast } from "../dom.js";
 import { db, uuid } from "../db.js";
 import { showDayPickerSheet } from "../dayPicker.js";
 import { navigate } from "../router.js";
+import { APP_VERSION, LAST_UPDATED } from "../version.js";
 
 let charts = {};
 
@@ -263,6 +264,11 @@ function showDataInfoSheet(counts) {
     style: "background:var(--bg-elevated);width:100%;max-height:85vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))",
   }, [
     h("h2", { style: "margin-bottom:12px" }, "Data & Storage"),
+
+    h("div", { class: "card" }, [
+      h("div", { class: "eyebrow", style: "margin-bottom:8px" }, "This version"),
+      h("p", {}, `FitTrack v${APP_VERSION} \u00b7 Updated ${LAST_UPDATED}`),
+    ]),
 
     h("div", { class: "card" }, [
       h("div", { class: "eyebrow", style: "margin-bottom:8px" }, "Stored on this device only"),

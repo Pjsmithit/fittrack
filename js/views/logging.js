@@ -21,11 +21,61 @@ export async function renderLog({ programId, weekNumber, dayNumber }) {
       .map((planned) => ({
         exerciseID: planned.exerciseID,
         exerciseName: planned.exerciseName,
+        linkedToNext: planned.linkedToNext || false,
         notes: "",
         rpe: null,
         sets: Array.from({ length: planned.sets }, () => ({ reps: 0, weightKg: 0 })),
       })),
   };
+
+  function exerciseBlock(ex) {
+    return h("div", {}, [
+      h("h2", {}, ex.exerciseName),
+      ...ex.sets.map((set, i) =>
+        h("div", { class: "set-row" }, [
+          h("span", { class: "set-index" }, `${i + 1}`),
+          h("div", { class: "set-field" }, [
+            h("label", {}, "Reps"),
+            h("input", {
+              type: "number",
+              inputmode: "numeric",
+              value: set.reps,
+              onInput: (e) => { set.reps = Number(e.target.value) || 0; },
+            }),
+          ]),
+          h("div", { class: "set-field" }, [
+            h("label", {}, "Weight (kg)"),
+            h("input", {
+              type: "number",
+              inputmode: "decimal",
+              step: "1.25",
+              value: set.weightKg,
+              onInput: (e) => { set.weightKg = Number(e.target.value) || 0; },
+            }),
+          ]),
+        ])
+      ),
+      h("div", { class: "field", style: "margin-top:12px" }, [
+        h("label", {}, "RPE (1\u201310)"),
+        h("input", {
+          type: "number",
+          inputmode: "numeric",
+          min: "0",
+          max: "10",
+          value: ex.rpe ?? "",
+          onInput: (e) => { ex.rpe = e.target.value === "" ? null : Number(e.target.value); },
+        }),
+      ]),
+      h("div", { class: "field" }, [
+        h("label", {}, "Notes"),
+        h("input", {
+          type: "text",
+          value: ex.notes,
+          onInput: (e) => { ex.notes = e.target.value; },
+        }),
+      ]),
+    ]);
+  }
 
   function render() {
     const screen = h("div", { class: "screen", style: "padding-top:0" }, [
@@ -60,54 +110,30 @@ export async function renderLog({ programId, weekNumber, dayNumber }) {
           ),
         ]),
 
-        ...draft.exercises.map((ex) =>
-          h("div", { class: "card" }, [
-            h("h2", {}, ex.exerciseName),
-            ...ex.sets.map((set, i) =>
-              h("div", { class: "set-row" }, [
-                h("span", { class: "set-index" }, `${i + 1}`),
-                h("div", { class: "set-field" }, [
-                  h("label", {}, "Reps"),
-                  h("input", {
-                    type: "number",
-                    inputmode: "numeric",
-                    value: set.reps,
-                    onInput: (e) => { set.reps = Number(e.target.value) || 0; },
-                  }),
-                ]),
-                h("div", { class: "set-field" }, [
-                  h("label", {}, "Weight (kg)"),
-                  h("input", {
-                    type: "number",
-                    inputmode: "decimal",
-                    step: "1.25",
-                    value: set.weightKg,
-                    onInput: (e) => { set.weightKg = Number(e.target.value) || 0; },
-                  }),
-                ]),
-              ])
-            ),
-            h("div", { class: "field", style: "margin-top:12px" }, [
-              h("label", {}, "RPE (1\u201310)"),
-              h("input", {
-                type: "number",
-                inputmode: "numeric",
-                min: "0",
-                max: "10",
-                value: ex.rpe ?? "",
-                onInput: (e) => { ex.rpe = e.target.value === "" ? null : Number(e.target.value); },
-              }),
-            ]),
-            h("div", { class: "field" }, [
-              h("label", {}, "Notes"),
-              h("input", {
-                type: "text",
-                value: ex.notes,
-                onInput: (e) => { ex.notes = e.target.value; },
-              }),
-            ]),
-          ])
-        ),
+        ...(() => {
+          const groups = [];
+          let current = [];
+          draft.exercises.forEach((ex) => {
+            current.push(ex);
+            if (!ex.linkedToNext) {
+              groups.push(current);
+              current = [];
+            }
+          });
+          if (current.length) groups.push(current);
+
+          return groups.map((group) =>
+            group.length > 1
+              ? h("div", { class: "card" }, [
+                  h("div", { class: "eyebrow", style: "margin-bottom:8px" }, `\u26AD Superset \u00d7 ${group.length}`),
+                  ...group.map((ex, i) => [
+                    exerciseBlock(ex),
+                    i < group.length - 1 ? h("div", { class: "divider" }) : null,
+                  ]).flat(),
+                ])
+              : h("div", { class: "card" }, exerciseBlock(group[0]))
+          );
+        })(),
 
         h("div", { class: "card" }, [
           h("h2", {}, "Overall"),

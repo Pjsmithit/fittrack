@@ -1,7 +1,7 @@
 import { h, mount, showTabbar, showToast } from "../dom.js";
 import { db } from "../db.js";
 import { navigate } from "../router.js";
-import { renderDayTemplateEditor } from "../dayTemplateEditor.js";
+import { renderDayTemplateEditor, buildWeeksForTotalDays } from "../dayTemplateEditor.js";
 
 export async function renderEditProgram({ programId }) {
   showTabbar(false);
@@ -13,10 +13,13 @@ export async function renderEditProgram({ programId }) {
   }
 
   const firstWeek = program.weeks.slice().sort((a, b) => a.weekNumber - b.weekNumber)[0];
+  const existingDayCount = firstWeek ? firstWeek.days.length : 1;
 
   const state = {
     name: program.name,
-    weeksCount: program.totalWeeks,
+    // Fall back to weeks × daysPerWeek for programs saved before the
+    // totalDays field existed (e.g. auto-generated programs).
+    totalDays: program.totalDays || (program.totalWeeks || 1) * (program.daysPerWeek || existingDayCount),
     // Deep-copy the first week's days as the editable template.
     days: (firstWeek ? firstWeek.days : [])
       .slice()
@@ -26,13 +29,21 @@ export async function renderEditProgram({ programId }) {
         exercises: day.exercises
           .slice()
           .sort((a, b) => a.orderIndex - b.orderIndex)
-          .map((ex) => ({ exerciseID: ex.exerciseID, exerciseName: ex.exerciseName, sets: ex.sets, repRange: ex.repRange, restSeconds: ex.restSeconds })),
+          .map((ex) => ({
+            exerciseID: ex.exerciseID,
+            exerciseName: ex.exerciseName,
+            sets: ex.sets,
+            repRange: ex.repRange,
+            restSeconds: ex.restSeconds,
+            linkedToNext: ex.linkedToNext || false,
+          })),
       })),
   };
 
   function render() {
     const totalExercises = state.days.reduce((sum, d) => sum + d.exercises.length, 0);
     const canSave = state.days.length > 0 && totalExercises > 0 && state.name.trim().length > 0;
+    const cycles = state.days.length > 0 ? (state.totalDays / state.days.length) : 0;
 
     const screen = h("div", { class: "screen", style: "padding-top:0" }, [
       h("div", { class: "topbar" }, [
@@ -51,14 +62,17 @@ export async function renderEditProgram({ programId }) {
         ]),
 
         h("div", { class: "stepper-row" }, [
-          h("span", { class: "stepper-label" }, `Weeks: ${state.weeksCount}`),
+          h("span", { class: "stepper-label" }, `Repeat for: ${state.totalDays} days total`),
           h("div", { class: "stepper-controls" }, [
-            h("button", { class: "stepper-btn", onClick: () => { state.weeksCount = Math.max(1, state.weeksCount - 1); render(); } }, "\u2212"),
-            h("button", { class: "stepper-btn", onClick: () => { state.weeksCount = Math.min(16, state.weeksCount + 1); render(); } }, "+"),
+            h("button", { class: "stepper-btn", onClick: () => { state.totalDays = Math.max(state.days.length || 1, state.totalDays - 1); render(); } }, "\u2212"),
+            h("button", { class: "stepper-btn", onClick: () => { state.totalDays = Math.min(180, state.totalDays + 1); render(); } }, "+"),
           ]),
         ]),
+        state.days.length > 0
+          ? h("p", { style: "margin:-4px 0 12px;font-size:13px" }, `That's your ${state.days.length}-day cycle repeated ${cycles.toFixed(1)} times.`)
+          : null,
 
-        h("p", { style: "margin:12px 0" }, "Saving rebuilds every week from this day template \u2014 if this program had different exercises in a later rotation week, that variation is replaced with this consistent structure."),
+        h("p", { style: "margin:12px 0" }, "Saving rebuilds every repeat from this day template \u2014 if this program had different exercises in a later rotation week, that variation is replaced with this consistent structure."),
 
         ...renderDayTemplateEditor(state.days, library, render),
       ]),
@@ -67,22 +81,14 @@ export async function renderEditProgram({ programId }) {
   }
 
   async function onSave() {
-    const weeksCount = state.weeksCount;
-    const weeks = Array.from({ length: weeksCount }, (_, i) => ({
-      weekNumber: i + 1,
-      isRotationWeek: false,
-      days: state.days.map((day, dayIndex) => ({
-        dayNumber: dayIndex + 1,
-        title: day.title,
-        exercises: day.exercises.map((ex, orderIndex) => ({ ...ex, orderIndex })),
-      })),
-    }));
+    const weeks = buildWeeksForTotalDays(state.days, state.totalDays);
 
     const updated = {
       ...program,
       name: state.name.trim(),
       daysPerWeek: state.days.length,
-      totalWeeks: weeksCount,
+      totalWeeks: weeks.length,
+      totalDays: state.totalDays,
       isCustom: true,
       weeks,
     };

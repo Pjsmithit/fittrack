@@ -1,6 +1,7 @@
 import { h, mount, showTabbar, setTabbarActive } from "../dom.js";
 import { db } from "../db.js";
 import { navigate } from "../router.js";
+import { APP_VERSION, LAST_UPDATED } from "../version.js";
 
 export async function renderProgram() {
   showTabbar(true);
@@ -33,6 +34,10 @@ export async function renderProgram() {
     document.body.appendChild(overlay);
   }
 
+  const versionFooter = h("p", {
+    style: "text-align:center;color:var(--text-faint);font-size:11px;margin-top:24px",
+  }, `FitTrack v${APP_VERSION} \u00b7 Updated ${LAST_UPDATED}`);
+
   if (programs.length === 0) {
     mount(
       h("div", { class: "screen" }, [
@@ -43,6 +48,7 @@ export async function renderProgram() {
           h("p", {}, "Auto-generate a program or build your own to get started."),
           h("button", { class: "btn btn-primary", style: "margin-top:16px", onClick: showNewProgramSheet }, "New Program"),
         ]),
+        versionFooter,
       ])
     );
     return;
@@ -71,7 +77,9 @@ export async function renderProgram() {
                     h("span", {}, [
                       h("div", { class: "row-title" }, program.name),
                       h("div", { class: "row-sub" }, [
-                        `${program.daysPerWeek} days/week \u00b7 ${program.totalWeeks} weeks`,
+                        program.isCustom
+                          ? `${program.daysPerWeek}-day cycle \u00b7 ${program.totalDays || program.totalWeeks * program.daysPerWeek} days total`
+                          : `${program.daysPerWeek} days/week \u00b7 ${program.totalWeeks} weeks`,
                         program.isCustom ? h("span", { class: "badge", style: "margin-left:8px" }, "Custom") : null,
                       ]),
                     ]),
@@ -82,6 +90,7 @@ export async function renderProgram() {
             )
           )
         ),
+        versionFooter,
       ]),
     ])
   );

@@ -89,7 +89,9 @@ export async function renderProgramDetail({ programId }) {
       h("div", { style: "padding:16px" }, [
         h("div", { class: "card" }, [
           h("h2", {}, program.name),
-          h("p", {}, `${program.daysPerWeek} days/week \u00b7 ${program.sessionLengthMinutes ? program.sessionLengthMinutes + " min \u00b7 " : ""}${program.totalWeeks} weeks`),
+          h("p", {}, program.isCustom
+            ? `${program.daysPerWeek}-day cycle \u00b7 ${program.totalDays || program.totalWeeks * program.daysPerWeek} days total`
+            : `${program.daysPerWeek} days/week \u00b7 ${program.sessionLengthMinutes ? program.sessionLengthMinutes + " min \u00b7 " : ""}${program.totalWeeks} weeks`),
           program.isCustom ? h("span", { class: "badge" }, "Custom") : null,
         ]),
         ...weeksBlocks,

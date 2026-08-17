@@ -1,7 +1,7 @@
 import { h, mount, showTabbar, showToast } from "../dom.js";
 import { db, uuid } from "../db.js";
 import { navigate } from "../router.js";
-import { renderDayTemplateEditor } from "../dayTemplateEditor.js";
+import { renderDayTemplateEditor, buildWeeksForTotalDays } from "../dayTemplateEditor.js";
 
 export async function renderCustomBuilder() {
   showTabbar(false);
@@ -10,13 +10,14 @@ export async function renderCustomBuilder() {
 
   const state = {
     name: "My Program",
-    weeksCount: 4,
+    totalDays: 28,
     days: [{ title: "Day 1", exercises: [] }],
   };
 
   function render() {
     const totalExercises = state.days.reduce((sum, d) => sum + d.exercises.length, 0);
     const canSave = state.days.length > 0 && totalExercises > 0 && state.name.trim().length > 0;
+    const cycles = state.days.length > 0 ? (state.totalDays / state.days.length) : 0;
 
     const screen = h("div", { class: "screen", style: "padding-top:0" }, [
       h("div", { class: "topbar" }, [
@@ -35,14 +36,17 @@ export async function renderCustomBuilder() {
         ]),
 
         h("div", { class: "stepper-row" }, [
-          h("span", { class: "stepper-label" }, `Weeks: ${state.weeksCount}`),
+          h("span", { class: "stepper-label" }, `Repeat for: ${state.totalDays} days total`),
           h("div", { class: "stepper-controls" }, [
-            h("button", { class: "stepper-btn", onClick: () => { state.weeksCount = Math.max(1, state.weeksCount - 1); render(); } }, "\u2212"),
-            h("button", { class: "stepper-btn", onClick: () => { state.weeksCount = Math.min(16, state.weeksCount + 1); render(); } }, "+"),
+            h("button", { class: "stepper-btn", onClick: () => { state.totalDays = Math.max(state.days.length || 1, state.totalDays - 1); render(); } }, "\u2212"),
+            h("button", { class: "stepper-btn", onClick: () => { state.totalDays = Math.min(180, state.totalDays + 1); render(); } }, "+"),
           ]),
         ]),
+        state.days.length > 0
+          ? h("p", { style: "margin:-4px 0 12px;font-size:13px" }, `That's your ${state.days.length}-day cycle repeated ${cycles.toFixed(1)} times.`)
+          : null,
 
-        h("p", { style: "margin:12px 0" }, "This day structure repeats for every week of the program \u2014 add each training day once, and the exercises, sets, and reps you set here apply across all weeks."),
+        h("p", { style: "margin:12px 0" }, "Build your training days once below \u2014 the app repeats this cycle automatically to fill the total days you set above. No need to duplicate anything."),
 
         ...renderDayTemplateEditor(state.days, library, render),
       ]),
@@ -51,16 +55,7 @@ export async function renderCustomBuilder() {
   }
 
   async function onSave() {
-    const weeksCount = state.weeksCount;
-    const weeks = Array.from({ length: weeksCount }, (_, i) => ({
-      weekNumber: i + 1,
-      isRotationWeek: false,
-      days: state.days.map((day, dayIndex) => ({
-        dayNumber: dayIndex + 1,
-        title: day.title,
-        exercises: day.exercises.map((ex, orderIndex) => ({ ...ex, orderIndex })),
-      })),
-    }));
+    const weeks = buildWeeksForTotalDays(state.days, state.totalDays);
 
     const program = {
       id: uuid(),
@@ -70,7 +65,8 @@ export async function renderCustomBuilder() {
       splitStyle: null,
       daysPerWeek: state.days.length,
       sessionLengthMinutes: null,
-      totalWeeks: weeksCount,
+      totalWeeks: weeks.length,
+      totalDays: state.totalDays,
       isActive: true,
       isCustom: true,
       weeks,
