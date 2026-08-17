@@ -101,6 +101,50 @@ recurring hassle.
 
 ## Update log
 
+**Update 8** — added a version number and last-updated date, visible
+in two places: a small footer at the bottom of the Program tab, and
+a card at the top of the **Data & Storage** sheet (Progress tab).
+Useful for confirming an update actually landed after re-uploading —
+if the number on screen doesn't match what you expect, the upload
+didn't take and it's worth re-checking GitHub's Actions tab for the
+deploy status.
+
+**Update 7** — four improvements to the manual program creator (and
+its Edit screen, which shares the same builder):
+
+1. **Supersets / visual grouping.** Each exercise except the last in a
+   day now has a **"⚭ Superset with next"** toggle. Turn it on between
+   two (or more) exercises and they're grouped into one visually
+   distinct block wherever you view that day — building, following,
+   and logging all show a clear "Superset × N" box around linked
+   exercises, with a proper break between that and whatever comes
+   next. Standalone exercises get their own clearly separated card as
+   before.
+2. **"Repeat for X days" instead of manually building every week.**
+   The old "Weeks" stepper is gone — you now set **"Repeat for: N
+   days total"**, and the day-cycle you build (e.g. a 3-day Push/Pull/
+   Legs rotation) repeats automatically to fill that many training
+   days exactly, with a live "= your 3-day cycle repeated 10 times"
+   readout so it's clear what you're getting. You still only build
+   each day once.
+3. **Reorder and insert exercises anywhere when editing.** Every
+   exercise now has **↑ / ↓** buttons to move it, and there's a **"+
+   Add exercise here"** divider before, between, and after every
+   exercise in a day — so adding a warm-up walk at the very start (or
+   anywhere else) is one tap at that exact spot, not just appending
+   to the end.
+4. **Exercise library review.** Added 10 exercises that were genuine
+   gaps for a push/pull routine: Arnold Press, Lying Triceps
+   Extension, Close-Grip Push-Up, Pike Push-Up, Renegade Row, and —
+   new **Full Gym** category, previously empty — Chin-Up, Inverted
+   Row, Lat Pulldown, Seated Cable Row, and Face Pull. Library's now
+   48 exercises across all 5 equipment types.
+
+Existing programs are unaffected — the day-template editor changes
+only show up when you open Edit or Build Custom, and old programs
+without a superset link or day-count field just behave as before
+until you touch them.
+
 **Update 6** — major change: multiple programs, custom-built from
 scratch.
 
