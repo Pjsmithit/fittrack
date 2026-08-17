@@ -100,6 +100,15 @@ export const db = {
       req.onerror = () => reject(req.error);
     });
   },
+
+  async clear(storeName) {
+    const store = await tx(storeName, "readwrite");
+    return new Promise((resolve, reject) => {
+      const req = store.clear();
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  },
 };
 
 export function uuid() {
