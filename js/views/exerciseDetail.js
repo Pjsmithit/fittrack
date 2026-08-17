@@ -4,7 +4,7 @@ import { getExerciseById, getExerciseLibrary } from "../exerciseLibrary.js";
 import { navigate } from "../router.js";
 
 export async function renderExercise({ programId, weekNumber, dayNumber, exerciseIndex }) {
-  showTabbar(false);
+  showTabbar(true);
   const program = await db.get("programs", programId);
   if (!program) return navigate("/program");
 

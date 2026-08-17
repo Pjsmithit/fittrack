@@ -4,7 +4,7 @@ import { navigate } from "../router.js";
 import { renderDayTemplateEditor, buildWeeksForTotalDays } from "../dayTemplateEditor.js";
 
 export async function renderCustomBuilder() {
-  showTabbar(false);
+  showTabbar(true);
 
   const library = await db.getAll("exercises");
 

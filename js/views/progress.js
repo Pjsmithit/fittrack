@@ -3,6 +3,7 @@ import { db, uuid } from "../db.js";
 import { showDayPickerSheet } from "../dayPicker.js";
 import { navigate } from "../router.js";
 import { APP_VERSION, LAST_UPDATED } from "../version.js";
+import { exportBackup, readFileAsJSON, isValidBackupPayload, restoreBackup } from "../backup.js";
 
 let charts = {};
 
@@ -292,10 +293,66 @@ function showDataInfoSheet(counts) {
     ]),
 
     h("div", { class: "card" }, [
+      h("div", { class: "eyebrow", style: "margin-bottom:8px" }, "Backup"),
+      h("p", {}, "Export everything as a file you can save to iCloud Drive, email yourself, or AirDrop — worth doing before an iOS update or if you haven't opened the app in a while."),
+      h("button", {
+        class: "btn btn-primary",
+        style: "margin-top:4px",
+        onClick: async () => {
+          const method = await exportBackup();
+          if (method === "share") showToast("Backup ready \u2014 choose where to save it");
+          else if (method === "download") showToast("Backup downloaded");
+        },
+      }, "Export Backup"),
+      h("button", {
+        class: "btn btn-secondary",
+        style: "margin-top:8px",
+        onClick: () => importFileInput.click(),
+      }, "Import Backup"),
+      h("p", { style: "margin-top:8px;font-size:12px" }, "Importing replaces everything currently on this device with what's in the backup file."),
+    ]),
+
+    h("div", { class: "card" }, [
       h("div", { class: "eyebrow", style: "margin-bottom:8px" }, "Worth knowing"),
-      h("p", {}, "iOS can, in rare low-storage situations, clear an installed web app's data if it goes unopened for roughly a week or more. Opening FitTrack periodically avoids this. There's currently no export/backup feature — if that would be useful, it's a straightforward thing to add."),
+      h("p", {}, "iOS can, in rare low-storage situations, clear an installed web app's data if it goes unopened for roughly a week or more. Opening FitTrack periodically avoids this — exporting a backup beforehand removes the risk entirely."),
     ]),
   ]);
+
+  const importFileInput = h("input", {
+    type: "file",
+    accept: "application/json,.json",
+    style: "display:none",
+    onChange: async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const payload = await readFileAsJSON(file);
+        if (!isValidBackupPayload(payload)) {
+          showToast("That doesn't look like a FitTrack backup file");
+          return;
+        }
+        const counts = {
+          logs: payload.data.logs.length,
+          programs: payload.data.programs.length,
+          bodyweight: payload.data.bodyweight.length,
+          exercises: payload.data.exercises.length,
+        };
+        const confirmed = window.confirm(
+          `Restore this backup from ${new Date(payload.exportedAt).toLocaleDateString()}?\n\n` +
+          `It has ${counts.programs} programs, ${counts.logs} logged workouts, ${counts.bodyweight} bodyweight entries.\n\n` +
+          `This replaces everything currently on this device. This can't be undone.`
+        );
+        if (!confirmed) return;
+        await restoreBackup(payload);
+        document.body.removeChild(overlay);
+        showToast("Backup restored");
+        renderProgress();
+      } catch (err) {
+        showToast("Couldn't read that file");
+      }
+    },
+  });
+  sheet.appendChild(importFileInput);
   overlay.appendChild(sheet);
   document.body.appendChild(overlay);
 }

@@ -3,7 +3,7 @@ import { db } from "../db.js";
 import { navigate } from "../router.js";
 
 export async function renderEditLog({ logId }) {
-  showTabbar(false);
+  showTabbar(true);
 
   const log = await db.get("logs", logId);
   if (!log) {

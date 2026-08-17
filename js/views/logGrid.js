@@ -9,7 +9,7 @@ const PERIODS = [
 ];
 
 export async function renderLogGrid() {
-  showTabbar(false);
+  showTabbar(true);
 
   const [logs, programs] = await Promise.all([db.getAll("logs"), db.getAll("programs")]);
   programs.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));

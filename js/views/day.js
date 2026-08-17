@@ -3,7 +3,7 @@ import { db } from "../db.js";
 import { navigate } from "../router.js";
 
 export async function renderDay({ programId, weekNumber, dayNumber }) {
-  showTabbar(false);
+  showTabbar(true);
   const program = await db.get("programs", programId);
   if (!program) return navigate("/program");
 

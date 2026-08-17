@@ -4,7 +4,7 @@ import { generateAndSaveProgram } from "../programGenerator.js";
 import { navigate } from "../router.js";
 
 export async function renderSetup() {
-  showTabbar(false);
+  showTabbar(true);
 
   const state = {
     goal: "generalFitness",

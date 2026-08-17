@@ -4,7 +4,7 @@ import { navigate } from "../router.js";
 import { renderDayTemplateEditor, buildWeeksForTotalDays } from "../dayTemplateEditor.js";
 
 export async function renderEditProgram({ programId }) {
-  showTabbar(false);
+  showTabbar(true);
 
   const [program, library] = await Promise.all([db.get("programs", programId), db.getAll("exercises")]);
   if (!program) {

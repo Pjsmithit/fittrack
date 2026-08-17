@@ -3,7 +3,7 @@ import { db } from "../db.js";
 import { navigate } from "../router.js";
 
 export async function renderProgramDetail({ programId }) {
-  showTabbar(false);
+  showTabbar(true);
 
   const program = await db.get("programs", programId);
   if (!program) {
