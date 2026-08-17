@@ -23,7 +23,10 @@ export async function renderProgress() {
   const exerciseCount = await db.count("exercises");
   logs.sort((a, b) => new Date(b.date) - new Date(a.date));
   bodyweight.sort((a, b) => new Date(a.date) - new Date(b.date));
-  const activeProgram = programs.find((p) => p.isActive);
+  programs.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+  const programsWithWeeks = programs.filter((p) => p.weeks && p.weeks.length > 0);
+
+  let selectedProgramID = programs[0]?.id || null;
 
   const exerciseNameByID = {};
   const exerciseIDsOrdered = [];
@@ -39,12 +42,14 @@ export async function renderProgress() {
   let selectedExerciseID = exerciseIDsOrdered[0] || null;
 
   function render() {
+    const selectedProgram = programs.find((p) => p.id === selectedProgramID) || null;
+
     const screen = h("div", { class: "screen", style: "padding-top:0" }, [
       h("div", { class: "topbar" }, [
         h("span"),
         h("h1", {}, "Progress"),
-        activeProgram
-          ? h("button", { class: "topbar-action", onClick: () => showDayPickerSheet(activeProgram) }, "+ Log")
+        programsWithWeeks.length > 0
+          ? h("button", { class: "topbar-action", onClick: () => showDayPickerSheet(programsWithWeeks) }, "+ Log")
           : h("span"),
       ]),
       h("div", { style: "padding:16px" }, [
@@ -71,10 +76,21 @@ export async function renderProgress() {
           ]),
         ]),
 
-        activeProgram
+        programs.length > 0
           ? h("div", { class: "card" }, [
               h("h2", {}, "Adherence"),
-              h("canvas", { class: "chart", id: "adherenceChart" }),
+              h(
+                "select",
+                {
+                  style:
+                    "width:100%;background:var(--bg-elevated-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px;margin:8px 0;font-size:15px;min-height:44px",
+                  onChange: (e) => { selectedProgramID = e.target.value; render(); },
+                },
+                programs.map((p) =>
+                  h("option", { value: p.id, selected: p.id === selectedProgramID ? "selected" : null }, p.name)
+                )
+              ),
+              selectedProgram ? h("canvas", { class: "chart", id: "adherenceChart" }) : h("p", {}, "Pick a program above."),
             ])
           : null,
 
@@ -143,7 +159,7 @@ export async function renderProgress() {
     mount(screen);
 
     requestAnimationFrame(() => {
-      if (activeProgram) drawAdherenceChart(activeProgram, logs);
+      if (selectedProgram) drawAdherenceChart(selectedProgram, logs);
       if (selectedExerciseID) drawExerciseChart(selectedExerciseID, logs, exerciseNameByID);
       if (bodyweight.length > 0) drawBodyweightChart(bodyweight);
     });

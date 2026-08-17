@@ -12,20 +12,22 @@ export async function renderLogGrid() {
   showTabbar(false);
 
   const [logs, programs] = await Promise.all([db.getAll("logs"), db.getAll("programs")]);
-  const activeProgram = programs.find((p) => p.isActive);
+  programs.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
 
   let period = "month";
+  let selectedProgramID = programs[0]?.id || null;
 
   function buildRows() {
     // Row order: exercises in the order they first appear in the
-    // active program (matches "the program down the left"). Falls
-    // back to first-appearance order in the logs themselves if there
-    // is no active program, so the grid still works.
+    // selected program (matches "the program down the left"). Falls
+    // back to first-appearance order in the logs themselves if no
+    // program is selected, so the grid still works.
     const seen = new Set();
     const rows = [];
+    const selectedProgram = programs.find((p) => p.id === selectedProgramID);
 
-    if (activeProgram) {
-      const weeks = [...activeProgram.weeks].sort((a, b) => a.weekNumber - b.weekNumber);
+    if (selectedProgram) {
+      const weeks = [...selectedProgram.weeks].sort((a, b) => a.weekNumber - b.weekNumber);
       for (const week of weeks) {
         const days = [...week.days].sort((a, b) => a.dayNumber - b.dayNumber);
         for (const day of days) {
@@ -142,6 +144,12 @@ export async function renderLogGrid() {
         h("span", { style: "width:48px" }),
       ]),
       h("div", { style: "padding:16px" }, [
+        programs.length > 0
+          ? h("select", {
+              style: "width:100%;background:var(--bg-elevated-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px;margin-bottom:12px;font-size:15px;min-height:44px",
+              onChange: (e) => { selectedProgramID = e.target.value; render(); },
+            }, programs.map((p) => h("option", { value: p.id, selected: p.id === selectedProgramID ? "selected" : null }, p.name)))
+          : null,
         h(
           "div",
           { class: "segmented", style: "margin-bottom:16px" },

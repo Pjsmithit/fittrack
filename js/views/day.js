@@ -14,7 +14,7 @@ export async function renderDay({ programId, weekNumber, dayNumber }) {
   mount(
     h("div", { class: "screen", style: "padding-top:0" }, [
       h("div", { class: "topbar" }, [
-        h("button", { class: "topbar-action", onClick: () => navigate("/program") }, "\u2039 Back"),
+        h("button", { class: "topbar-action", onClick: () => navigate(`/program/${programId}`) }, "\u2039 Back"),
         h("h1", {}, day.title),
         h("button", {
           class: "topbar-action",

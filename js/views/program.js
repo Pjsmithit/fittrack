@@ -7,77 +7,81 @@ export async function renderProgram() {
   setTabbarActive("program");
 
   const programs = await db.getAll("programs");
-  const active = programs.find((p) => p.isActive);
+  programs.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
 
-  if (!active) {
+  function showNewProgramSheet() {
+    const overlay = h("div", {
+      style: "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:flex;align-items:flex-end",
+      onClick: (e) => { if (e.target === overlay) document.body.removeChild(overlay); },
+    });
+    const sheet = h("div", {
+      style: "background:var(--bg-elevated);width:100%;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))",
+    }, [
+      h("h2", { style: "margin-bottom:4px" }, "New Program"),
+      h("p", { style: "margin-bottom:16px" }, "Auto-generate one from your goals and equipment, or build your own from scratch."),
+      h("button", {
+        class: "btn btn-primary",
+        style: "margin-bottom:10px",
+        onClick: () => { document.body.removeChild(overlay); navigate("/setup"); },
+      }, "Auto-Generate"),
+      h("button", {
+        class: "btn btn-secondary",
+        onClick: () => { document.body.removeChild(overlay); navigate("/build"); },
+      }, "Build Custom"),
+    ]);
+    overlay.appendChild(sheet);
+    document.body.appendChild(overlay);
+  }
+
+  if (programs.length === 0) {
     mount(
       h("div", { class: "screen" }, [
-        h("div", { class: "topbar" }, [h("span"), h("h1", {}, "Program"), h("span")]),
+        h("div", { class: "topbar" }, [h("span"), h("h1", {}, "Programs"), h("span")]),
         h("div", { class: "empty-state" }, [
           h("span", { class: "glyph" }, "\u{1F4CB}"),
-          h("h2", {}, "No Active Program"),
-          h("p", {}, "Generate a program to get started."),
-          h("button", { class: "btn btn-primary", style: "margin-top:16px", onClick: () => navigate("/setup") }, "New Program"),
+          h("h2", {}, "No Programs Yet"),
+          h("p", {}, "Auto-generate a program or build your own to get started."),
+          h("button", { class: "btn btn-primary", style: "margin-top:16px", onClick: showNewProgramSheet }, "New Program"),
         ]),
       ])
     );
     return;
   }
 
-  const weeksBlocks = active.weeks
-    .slice()
-    .sort((a, b) => a.weekNumber - b.weekNumber)
-    .map((week) =>
-      h("div", { class: "card" }, [
-        h("div", { class: "eyebrow", style: "margin-bottom:8px" }, week.isRotationWeek ? `Week ${week.weekNumber} \u00b7 Rotation` : `Week ${week.weekNumber}`),
-        h(
-          "ul",
-          { class: "card-list" },
-          week.days
-            .slice()
-            .sort((a, b) => a.dayNumber - b.dayNumber)
-            .map((day) =>
-              h("li", {}, [
-                h("div", { class: "row-split" }, [
-                  h(
-                    "button",
-                    {
-                      class: "row-link",
-                      onClick: () => navigate(`/day/${active.id}/${week.weekNumber}/${day.dayNumber}`),
-                    },
-                    [
-                      h("div", { class: "row-title" }, day.title),
-                      h("div", { class: "row-sub" }, `${day.exercises.length} exercises \u203a`),
-                    ]
-                  ),
-                  h(
-                    "button",
-                    {
-                      class: "log-pill",
-                      onClick: () => navigate(`/log/${active.id}/${week.weekNumber}/${day.dayNumber}`),
-                    },
-                    "Log"
-                  ),
-                ]),
-              ])
-            )
-        ),
-      ])
-    );
-
   mount(
     h("div", { class: "screen" }, [
       h("div", { class: "topbar" }, [
         h("span"),
-        h("h1", {}, "Program"),
-        h("button", { class: "topbar-action", onClick: () => navigate("/setup") }, "+ New"),
+        h("h1", {}, "Programs"),
+        h("button", { class: "topbar-action", onClick: showNewProgramSheet }, "+ New"),
       ]),
       h("div", { style: "padding:16px" }, [
-        h("div", { class: "card" }, [
-          h("h2", {}, active.name),
-          h("p", {}, `${active.daysPerWeek} days/week \u00b7 ${active.sessionLengthMinutes} min \u00b7 ${active.totalWeeks} weeks`),
-        ]),
-        ...weeksBlocks,
+        h(
+          "div",
+          { class: "card" },
+          h(
+            "ul",
+            { class: "card-list" },
+            programs.map((program) =>
+              h("li", {}, [
+                h(
+                  "button",
+                  { class: "row", onClick: () => navigate(`/program/${program.id}`) },
+                  [
+                    h("span", {}, [
+                      h("div", { class: "row-title" }, program.name),
+                      h("div", { class: "row-sub" }, [
+                        `${program.daysPerWeek} days/week \u00b7 ${program.totalWeeks} weeks`,
+                        program.isCustom ? h("span", { class: "badge", style: "margin-left:8px" }, "Custom") : null,
+                      ]),
+                    ]),
+                    h("span", { class: "row-chevron" }, "\u203a"),
+                  ]
+                ),
+              ])
+            )
+          )
+        ),
       ]),
     ])
   );

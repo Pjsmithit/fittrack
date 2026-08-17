@@ -167,7 +167,7 @@ export async function renderSetup() {
               includeTreadmillWalking: state.includeTreadmillWalking,
             });
             showToast("Program generated");
-            navigate("/program");
+            navigate(`/program/${program.id}`);
           },
         }, "Generate Program"),
       ]),
