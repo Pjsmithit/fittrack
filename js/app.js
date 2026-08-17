@@ -8,9 +8,15 @@ import { renderLog } from "./views/logging.js";
 import { renderProgress } from "./views/progress.js";
 import { renderLogGrid } from "./views/logGrid.js";
 import { renderEditLog } from "./views/editLog.js";
+import { renderProgramDetail } from "./views/programDetail.js";
+import { renderCustomBuilder } from "./views/customBuilder.js";
+import { renderEditProgram } from "./views/editProgram.js";
 
 route("/setup", renderSetup);
 route("/program", renderProgram);
+route("/program/:programId", renderProgramDetail);
+route("/build", renderCustomBuilder);
+route("/edit-program/:programId", renderEditProgram);
 route("/day/:programId/:weekNumber/:dayNumber", renderDay);
 route("/exercise/:programId/:weekNumber/:dayNumber/:exerciseIndex", renderExercise);
 route("/log/:programId/:weekNumber/:dayNumber", renderLog);

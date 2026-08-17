@@ -32,6 +32,7 @@ export function generateProgram(settings, library) {
     sessionLengthMinutes: settings.sessionLengthMinutes,
     totalWeeks: settings.programLengthWeeks,
     isActive: true,
+    isCustom: false,
     weeks: [],
   };
 
@@ -71,14 +72,6 @@ export function generateProgram(settings, library) {
 
 export async function generateAndSaveProgram(settings) {
   const library = await db.getAll("exercises");
-
-  // Deactivate any currently active program rather than deleting it,
-  // so past programs remain visible in history.
-  const existing = await db.getAll("programs");
-  await Promise.all(
-    existing.filter((p) => p.isActive).map((p) => db.put("programs", { ...p, isActive: false }))
-  );
-
   const program = generateProgram(settings, library);
   await db.put("programs", program);
   return program;
